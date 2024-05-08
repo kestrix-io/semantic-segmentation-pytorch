@@ -8,7 +8,7 @@ except:
     from torch._C import _update_worker_pids as _set_worker_pids
 from .sampler import SequentialSampler, RandomSampler, BatchSampler
 import signal
-import collections
+from collections.abc import Sequence, Mapping
 import re
 import sys
 import threading
@@ -133,9 +133,9 @@ def default_collate(batch):
         return torch.DoubleTensor(batch)
     elif isinstance(batch[0], string_classes):
         return batch
-    elif isinstance(batch[0], collections.Mapping):
+    elif isinstance(batch[0], Mapping):
         return {key: default_collate([d[key] for d in batch]) for key in batch[0]}
-    elif isinstance(batch[0], collections.Sequence):
+    elif isinstance(batch[0], Sequence):
         transposed = zip(*batch)
         return [default_collate(samples) for samples in transposed]
 
@@ -147,9 +147,9 @@ def pin_memory_batch(batch):
         return batch.pin_memory()
     elif isinstance(batch, string_classes):
         return batch
-    elif isinstance(batch, collections.Mapping):
+    elif isinstance(batch, Mapping):
         return {k: pin_memory_batch(sample) for k, sample in batch.items()}
-    elif isinstance(batch, collections.Sequence):
+    elif isinstance(batch, Sequence):
         return [pin_memory_batch(sample) for sample in batch]
     else:
         return batch
